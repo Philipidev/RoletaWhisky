@@ -117,34 +117,17 @@ export const App: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-secondary-800">
-                  Roleta Numérica
+                  🥃 Roleta do Whisky 🥃
                 </h1>
                 <p className="text-sm text-secondary-600 mt-1">
-                  Sorteios justos e transparentes
+                  Casamento Ítalo & Raíça - Sorteio Especial
+                </p>
+                <p className="text-xs text-secondary-500 mt-1">
+                  Sorteando os participantes do evento do whisky
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              {!options.allowRepeats && (
-                <div className="text-sm text-secondary-600">
-                  <span className="font-medium">Restantes:</span>{' '}
-                  <span className="text-primary-600 font-bold">
-                    {availableNumbers.length}
-                  </span>
-                </div>
-              )}
-              
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={handleSpin}
-                disabled={isSpinning || availableNumbers.length === 0}
-                isLoading={isSpinning}
-              >
-                {isSpinning ? 'Girando...' : '🎲 Girar Roleta'}
-              </Button>
-            </div>
           </div>
         </div>
       </header>
@@ -428,6 +411,20 @@ export const App: React.FC = () => {
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+          
+          {/* Botão para girar a roleta */}
+          <div className="flex justify-center">
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={handleSpin}
+              disabled={isSpinning || availableNumbers.length === 0}
+              isLoading={isSpinning}
+              className="text-xl px-8 py-4"
+            >
+              {isSpinning ? 'Girando...' : '🎲 Girar Roleta'}
+            </Button>
           </div>
           
           {/* Status da roleta */}
