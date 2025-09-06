@@ -1,0 +1,16 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo circular -->
+  <circle cx="16" cy="16" r="15" fill="#ed7418" stroke="#de5a0e" stroke-width="2"/>
+  
+  <!-- Setores da roleta -->
+  <path d="M16 1 L16 16 L28 8 Z" fill="#f19340"/>
+  <path d="M16 16 L16 1 L4 8 Z" fill="#de5a0e"/>
+  <path d="M16 16 L4 24 L16 31 Z" fill="#f19340"/>
+  <path d="M16 16 L16 31 L28 24 Z" fill="#de5a0e"/>
+  
+  <!-- Centro da roleta -->
+  <circle cx="16" cy="16" r="3" fill="white" stroke="#334155" stroke-width="1"/>
+  
+  <!-- Ponteiro no topo -->
+  <path d="M16 3 L18 7 L16 6 L14 7 Z" fill="white"/>
+</svg>

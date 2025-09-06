@@ -1,69 +1,210 @@
-# React + TypeScript + Vite
+# 🎰 Roleta Numérica
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Uma aplicação web moderna para sorteios numéricos com roleta animada, construída com React, TypeScript e Framer Motion.
 
-Currently, two official plugins are available:
+## ✨ Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Configuração flexível**: Defina números por quantidade (1-N) ou por ranges customizados
+- **Roleta animada**: SVG com animações fluidas e efeitos visuais
+- **Histórico persistente**: Todos os sorteios são salvos no localStorage
+- **Controle de repetição**: Opção para permitir ou não números repetidos
+- **Exportação CSV**: Exporte o histórico completo dos sorteios
+- **Interface responsiva**: Funciona perfeitamente em desktop e mobile
+- **Acessibilidade**: Suporte completo a leitores de tela e navegação por teclado
 
-## Expanding the ESLint configuration
+## 🚀 Tecnologias
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend**: Vite + React 19 + TypeScript
+- **Estilos**: Tailwind CSS
+- **Animações**: Framer Motion
+- **Estado**: Zustand
+- **Testes**: Vitest + Testing Library
+- **Qualidade**: ESLint + Prettier
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 📦 Instalação
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+```bash
+# Clone o repositório
+git clone <url-do-repositorio>
+cd RoletaWhisky
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Instale as dependências
+npm install
+
+# Execute em modo desenvolvimento
+npm run dev
+
+# Ou execute os testes
+npm run test
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🎮 Como usar
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 1. Configurar números
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Modo Quantidade:**
+- Digite um número (ex: 500)
+- Será gerado um pool de 1 até o número informado
+
+**Modo Ranges:**
+- Adicione intervalos personalizados (ex: 10-200, 230-240)
+- Os ranges são automaticamente mesclados e duplicatas removidas
+
+### 2. Configurar opções
+
+- **Permitir repetidos**: Se desabilitado, números sorteados não podem ser sorteados novamente
+- **Reset geral**: Limpa tudo (números e histórico)
+- **Limpar histórico**: Remove apenas o histórico de sorteios
+
+### 3. Sortear
+
+- Clique na roleta ou no botão "Girar Roleta"
+- A roleta gira com animação realística
+- O número sorteado aparece em destaque
+- O resultado é automaticamente salvo no histórico
+
+### 4. Gerenciar histórico
+
+- Visualize todos os sorteios organizados por data
+- Remova números específicos da roleta
+- Exporte o histórico completo em formato CSV
+
+## 🧪 Testes
+
+```bash
+# Executar todos os testes
+npm run test
+
+# Executar testes uma vez
+npm run test:run
+
+# Executar com interface visual
+npm run test:ui
+
+# Executar com coverage
+npm run test:coverage
 ```
+
+## 🏗️ Build para produção
+
+```bash
+# Gerar build otimizado
+npm run build
+
+# Visualizar build localmente
+npm run preview
+```
+
+## 📁 Estrutura do projeto
+
+```
+src/
+├── app/
+│   └── App.tsx              # Componente principal
+├── components/
+│   ├── wheel/               # Componentes da roleta
+│   │   ├── Wheel.tsx
+│   │   ├── Pointer.tsx
+│   │   └── Wheel.svg.utils.ts
+│   ├── controls/            # Controles de configuração
+│   │   ├── Controls.tsx
+│   │   └── RangeEditor.tsx
+│   ├── history/             # Histórico de sorteios
+│   │   ├── HistoryList.tsx
+│   │   └── ExportButton.tsx
+│   └── ui/                  # Componentes base
+│       ├── Button.tsx
+│       ├── Toggle.tsx
+│       ├── Field.tsx
+│       └── NumberBadge.tsx
+├── store/
+│   └── useDrawStore.ts      # Estado global (Zustand)
+├── lib/
+│   ├── types.ts             # Tipos TypeScript
+│   ├── rng.ts               # Gerador de números aleatórios
+│   ├── persistence.ts       # Persistência localStorage
+│   ├── csv.ts               # Exportação CSV
+│   └── __tests__/           # Testes dos utilitários
+└── test/
+    └── setup.ts             # Configuração dos testes
+```
+
+## 🎨 Personalização de tema
+
+O projeto foi estruturado para facilitar a personalização visual. Para implementar um tema "whisky":
+
+1. **Cores**: Edite `tailwind.config.js` com a paleta de cores desejada
+2. **Texturas**: Adicione assets em `src/assets/` 
+3. **Componentes**: Os tokens de tema estão isolados em `src/lib/types.ts`
+
+## 🔧 Configurações avançadas
+
+### Seed para reproduzibilidade
+
+```typescript
+// No store, configure um seed fixo para testes
+options: {
+  allowRepeats: true,
+  seed: 12345 // Sempre gerará a mesma sequência
+}
+```
+
+### Limites personalizados
+
+```typescript
+// Ajuste os limites em src/store/useDrawStore.ts
+const MAX_QUANTITY = 10000; // Máximo de números
+const MAX_RANGES = 50;      // Máximo de ranges
+```
+
+## 📱 Responsividade
+
+A aplicação é totalmente responsiva:
+- **Desktop**: Layout em 3 colunas (controles | roleta | histórico)
+- **Tablet**: Layout adaptativo com roleta centralizada
+- **Mobile**: Layout em coluna única com navegação otimizada
+
+## ♿ Acessibilidade
+
+- Todos os botões têm labels ARIA apropriados
+- Navegação completa por teclado
+- Suporte a leitores de tela
+- Contraste adequado para WCAG 2.1
+- Animações respeitam `prefers-reduced-motion`
+
+## 🐛 Solução de problemas
+
+### Erro de build
+```bash
+# Limpe o cache e reinstale
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Problemas de persistência
+```bash
+# Limpe o localStorage no DevTools
+localStorage.clear()
+```
+
+### Testes falhando
+```bash
+# Verifique se todas as dependências estão instaladas
+npm install --include=dev
+```
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 🤝 Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+---
+
+Desenvolvido com ❤️ usando React + TypeScript + Framer Motion
