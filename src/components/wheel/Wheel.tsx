@@ -2,6 +2,7 @@ import { useMemo, useRef, forwardRef, useImperativeHandle } from 'react';
 import { motion } from 'framer-motion';
 import { useDrawStore, useDrawnNumbers } from '../../store/useDrawStore';
 import { Pointer } from './Pointer';
+import CentroImagemRoleta from '../../assets/CentroImagemRoleta.png';
 import {
   generateWheelSectors,
   describeArc,
@@ -10,7 +11,11 @@ import {
   getSectorColor,
   getFontSize,
   calculateFinalRotation,
+  polarToCartesian,
 } from './Wheel.svg.utils';
+
+// Constante para controlar o tamanho da imagem central (proporção do raio)
+const CENTER_IMAGE_SCALE = 0.90;
 
 interface WheelProps {
   size?: number;
@@ -42,8 +47,9 @@ export const Wheel = forwardRef<WheelRef, WheelProps>(({
   const drawnNumbers = useDrawnNumbers();
   const wheelRef = useRef<SVGGElement>(null);
   
-  const radius = size / 2 - 20; // Margem para o ponteiro
+  const radius = size / 2 - 50; // Margem para acomodar borda grossa e botões
   const center = size / 2;
+  const centerImageSize = Math.max(80, radius * CENTER_IMAGE_SCALE); // Tamanho da imagem proporcional ao raio
   
   // Gerar setores da roleta
   const sectors = useMemo(() => {
@@ -149,10 +155,14 @@ export const Wheel = forwardRef<WheelRef, WheelProps>(({
             const sectorColor = getSectorColor(
               index,
               sector.isDrawn,
-              '#f19340',
-              '#ed7418',
-              '#94a3b8'
+              '#ef0408',
+              '#492419',
+              '#e6aa5e'
             );
+            
+            // Determinar cor do texto baseada no fundo
+            const textColor = sector.isDrawn ? '#6b7280' : 
+              (index % 2 === 0 ? '#fbe3cb' : '#e6aa5e');
             
             return (
               <g key={sector.number}>
@@ -177,7 +187,7 @@ export const Wheel = forwardRef<WheelRef, WheelProps>(({
                     dominantBaseline="middle"
                     fontSize={dynamicFontSize}
                     fontWeight="bold"
-                    fill={sector.isDrawn ? '#6b7280' : '#fff'}
+                    fill={textColor}
                     className="pointer-events-none select-none"
                     transform={`rotate(${sector.centerAngle}, ${textPosition.x}, ${textPosition.y})`}
                   >
@@ -189,25 +199,99 @@ export const Wheel = forwardRef<WheelRef, WheelProps>(({
           })}
         </motion.g>
         
-        {/* Borda externa */}
+        {/* Borda externa com gradiente e botões decorativos */}
+        <defs>
+          <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#b8941f" />
+            <stop offset="25%" stopColor="#efb95d" />
+            <stop offset="50%" stopColor="#ffe4ab" />
+            <stop offset="75%" stopColor="#efb95d" />
+            <stop offset="100%" stopColor="#d4a853" />
+          </linearGradient>
+          <radialGradient id="buttonGradient" cx="50%" cy="30%" r="70%">
+            <stop offset="0%" stopColor="#ffe4ab" />
+            <stop offset="70%" stopColor="#efb95d" />
+            <stop offset="100%" stopColor="#d4a853" />
+          </radialGradient>
+        </defs>
+        
+        {/* Borda principal mais larga */}
         <circle
           cx={center}
           cy={center}
-          r={radius + 2}
+          r={radius + 8}
           fill="none"
-          stroke="#334155"
-          strokeWidth="4"
+          stroke="url(#borderGradient)"
+          strokeWidth="40"
         />
         
+        {/* 13 botões decorativos ao redor da borda */}
+        {Array.from({ length: 13 }, (_, i) => {
+          const angle = (i * 360) / 13;
+          const buttonRadius = radius + 9;
+          const buttonPos = polarToCartesian(center, center, buttonRadius, angle);
+          
+          return (
+            <g key={`button-${i}`}>
+              {/* Sombra do botão */}
+              <circle
+                cx={buttonPos.x +3}
+                cy={buttonPos.y + 3}
+                r="10"
+                fill="rgba(0,0,0,0.3)"
+              />
+              {/* Botão principal */}
+              <circle
+                cx={buttonPos.x}
+                cy={buttonPos.y}
+                r="10"
+                fill="url(#buttonGradient)"
+                stroke="#d4a853"
+                strokeWidth="3"
+              />
+              {/* Detalhe central do botão */}
+              <circle
+                cx={buttonPos.x}
+                cy={buttonPos.y}
+                r="5"
+                fill="#b8941f"
+              />
+            </g>
+          );
+        })}
+        
         {/* Centro da roleta */}
-        <circle
-          cx={center}
-          cy={center}
-          r="12"
-          fill="#334155"
-          stroke="#fff"
-          strokeWidth="2"
+        {/* Fundo quadrado do centro */}
+        <rect
+          x={center - centerImageSize / 2}
+          y={center - centerImageSize / 2}
+          width={centerImageSize}
+          height={centerImageSize}
+          fill="#7e4b23"
+          stroke="#6b3e1f"
+          strokeWidth="3"
+          rx="8"
+          ry="8"
         />
+        
+        {/* Imagem quadrada do centro */}
+        <foreignObject
+          x={center - centerImageSize / 2 + 3}
+          y={center - centerImageSize / 2 + 3}
+          width={centerImageSize - 6}
+          height={centerImageSize - 6}
+        >
+          <img
+            src={CentroImagemRoleta}
+            alt="Logan Heritage Blend"
+            style={{
+              width: `${centerImageSize - 6}px`,
+              height: `${centerImageSize - 6}px`,
+              objectFit: 'cover',
+              borderRadius: '5px'
+            }}
+          />
+        </foreignObject>
       </motion.svg>
       
       {/* Efeito de blur durante o giro */}
@@ -219,13 +303,7 @@ export const Wheel = forwardRef<WheelRef, WheelProps>(({
           }}
         />
       )}
-      
-      {/* Instruções */}
-      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-        <p className="text-sm text-secondary-600 text-center">
-          {isSpinning ? 'Girando...' : 'Clique para girar'}
-        </p>
-      </div>
+    
     </div>
   );
 });
