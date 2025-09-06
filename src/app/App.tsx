@@ -30,7 +30,12 @@ export const App: React.FC = () => {
     const saved = localStorage.getItem('fontSize');
     return saved ? Number(saved) : 16;
   });
+  const [showControls, setShowControls] = useState(() => {
+    const saved = localStorage.getItem('showControls');
+    return saved ? JSON.parse(saved) : true;
+  });
   const wheelRef = useRef<WheelRef>(null);
+  const wheelContainerRef = useRef<HTMLDivElement>(null);
 
   // Hidratar estado do localStorage na inicialização
   useEffect(() => {
@@ -41,8 +46,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (lastDrawn && !isSpinning) {
       setShowResult(true);
-      const timer = setTimeout(() => setShowResult(false), 3000);
-      return () => clearTimeout(timer);
     }
   }, [lastDrawn, isSpinning]);
 
@@ -66,6 +69,11 @@ export const App: React.FC = () => {
     localStorage.setItem('fontSize', fontSize.toString());
   }, [fontSize]);
 
+  useEffect(() => {
+    localStorage.setItem('showControls', JSON.stringify(showControls));
+  }, [showControls]);
+
+
   const handleSpin = () => {
     if (availableNumbers.length === 0) {
       alert('Não há números disponíveis para sortear!');
@@ -84,6 +92,10 @@ export const App: React.FC = () => {
   const handleSpinComplete = (number: number) => {
     // Callback quando a animação da roleta termina
     console.log(`Número sorteado: ${number}`);
+  };
+
+  const handleCloseResult = () => {
+    setShowResult(false);
   };
 
   return (
@@ -137,70 +149,69 @@ export const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Resultado em destaque */}
-      <AnimatePresence>
-        {showResult && lastDrawn && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5, y: -50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.5, y: -50 }}
-            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"
-          >
-            <div className="bg-white rounded-2xl shadow-2xl p-8 border-4 border-primary-500">
-              <div className="text-center">
-                <div className="text-sm font-medium text-secondary-600 mb-2">
-                  NÚMERO SORTEADO
-                </div>
-                <NumberBadge
-                  number={lastDrawn}
-                  variant="highlighted"
-                  size="lg"
-                  className="text-4xl px-8 py-4"
-                />
-                <div className="mt-4">
-                  <div className="flex justify-center">
-                    {[...Array(3)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        animate={{
-                          scale: [1, 1.2, 1],
-                          opacity: [0.5, 1, 0.5],
-                        }}
-                        transition={{
-                          duration: 1,
-                          repeat: Infinity,
-                          delay: i * 0.2,
-                        }}
-                        className="w-2 h-2 bg-primary-500 rounded-full mx-1"
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Conteúdo principal */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${showControls ? 'py-8' : 'py-4'} ${!showControls ? 'min-h-screen flex flex-col justify-center' : ''}`}>
         {/* Controles e Histórico */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Controles */}
-          <div>
-            <Controls />
-          </div>
+        <AnimatePresence>
+          {showControls && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12"
+            >
+              {/* Controles */}
+              <div>
+                <Controls />
+              </div>
 
-          {/* Histórico */}
-          <div>
-            <HistoryList />
-          </div>
-        </div>
+              {/* Histórico */}
+              <div>
+                <HistoryList />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Roleta - Seção isolada */}
         <div className="flex flex-col items-center space-y-8">
+          {/* Botão para mostrar/ocultar controles */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => setShowControls(!showControls)}
+              className="flex items-center space-x-2 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors shadow-md"
+            >
+              {showControls ? (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
+                  <span>Ocultar Controles</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span>Mostrar Controles</span>
+                </>
+              )}
+            </button>
+          </div>
+
           {/* Configurações da Roleta */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-secondary-200 w-full max-w-4xl">
+          <AnimatePresence>
+            {showControls && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-xl shadow-lg p-6 border border-secondary-200 w-full max-w-4xl"
+              >
             <div className="flex flex-col space-y-6">
               <h3 className="text-lg font-semibold text-secondary-800 text-center">
                 Configurações da Roleta
@@ -314,15 +325,110 @@ export const App: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <Wheel
-            ref={wheelRef}
-            size={wheelSize}
-            showNumbers={showNumbers}
-            fontSize={fontSize}
-            onSpinComplete={handleSpinComplete}
-          />
+          <div ref={wheelContainerRef} className="relative">
+            <Wheel
+              ref={wheelRef}
+              size={wheelSize}
+              showNumbers={showNumbers}
+              fontSize={fontSize}
+              onSpinComplete={handleSpinComplete}
+            />
+            
+            {/* Popup do resultado - posicionado no centro da roleta */}
+            <AnimatePresence>
+              {showResult && lastDrawn && (
+                <motion.div
+                  initial={{ 
+                    opacity: 0, 
+                    scale: 0.1
+                  }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: 1
+                  }}
+                  exit={{ 
+                    opacity: 0, 
+                    scale: 0.1
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 20,
+                    duration: 0.8
+                  }}
+                  className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
+                >
+                  <div className="bg-white rounded-2xl shadow-2xl p-6 border-4 border-primary-500 pointer-events-auto">
+                    <div className="text-center">
+                      <div className="text-sm font-medium text-secondary-600 mb-2">
+                        NÚMERO SORTEADO
+                      </div>
+                      <NumberBadge
+                        number={lastDrawn}
+                        variant="highlighted"
+                        size="lg"
+                        className="text-3xl px-6 py-3"
+                      />
+                      <div className="mt-4">
+                        <motion.button
+                          onClick={handleCloseResult}
+                          whileHover={{ 
+                            scale: 1.1,
+                            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)"
+                          }}
+                          whileTap={{ scale: 0.9 }}
+                          animate={{
+                            scale: [1, 1.05, 1],
+                            boxShadow: [
+                              "0 4px 15px rgba(34, 197, 94, 0.4)",
+                              "0 8px 25px rgba(34, 197, 94, 0.6)",
+                              "0 4px 15px rgba(34, 197, 94, 0.4)"
+                            ]
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            repeatType: "reverse"
+                          }}
+                          className="relative bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transform transition-all duration-200 text-xl overflow-hidden"
+                        >
+                          <motion.div
+                            animate={{
+                              rotate: [0, 5, -5, 0]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              repeatType: "reverse"
+                            }}
+                          >
+                            🎉 UHUUU! 🎉
+                          </motion.div>
+                          
+                          {/* Efeito de brilho */}
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20"
+                            animate={{
+                              x: ["-100%", "100%"]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              repeatDelay: 1
+                            }}
+                          />
+                        </motion.button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           
           {/* Status da roleta */}
           <div className="text-center">
