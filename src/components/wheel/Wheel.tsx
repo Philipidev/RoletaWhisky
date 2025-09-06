@@ -6,7 +6,6 @@ import {
   generateWheelSectors,
   describeArc,
   getTextPosition,
-  shouldShowLabel,
   getLabelInterval,
   getSectorColor,
   getFontSize,
@@ -15,6 +14,8 @@ import {
 
 interface WheelProps {
   size?: number;
+  showNumbers?: boolean;
+  fontSize?: number;
   onSpinComplete?: (number: number) => void;
 }
 
@@ -24,6 +25,8 @@ export interface WheelRef {
 
 export const Wheel = forwardRef<WheelRef, WheelProps>(({
   size = 400,
+  showNumbers = true,
+  fontSize = 16,
   onSpinComplete,
 }, ref) => {
   const {
@@ -47,10 +50,10 @@ export const Wheel = forwardRef<WheelRef, WheelProps>(({
     return generateWheelSectors(pool, drawnNumbers);
   }, [pool, drawnNumbers]);
   
-  // Configurações de exibição baseadas no número de setores
-  const showLabels = shouldShowLabel(sectors.length);
-  const labelInterval = getLabelInterval(sectors.length);
-  const fontSize = getFontSize(sectors.length);
+  // Configurações de exibição baseadas no número de setores e props
+  const showLabels = showNumbers; // Sempre mostrar quando showNumbers=true
+  const labelInterval = showNumbers ? 1 : getLabelInterval(sectors.length); // Mostrar todos quando controlado manualmente
+  const dynamicFontSize = showNumbers ? fontSize : getFontSize(sectors.length);
   
   // Função para girar a roleta
   const spin = async () => {
@@ -172,7 +175,7 @@ export const Wheel = forwardRef<WheelRef, WheelProps>(({
                     y={textPosition.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    fontSize={fontSize}
+                    fontSize={dynamicFontSize}
                     fontWeight="bold"
                     fill={sector.isDrawn ? '#6b7280' : '#fff'}
                     className="pointer-events-none select-none"
