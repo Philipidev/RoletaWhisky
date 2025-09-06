@@ -18,6 +18,10 @@ export const App: React.FC = () => {
 
   const availableNumbers = useAvailableNumbers();
   const [showResult, setShowResult] = useState(false);
+  const [wheelSize, setWheelSize] = useState(() => {
+    const saved = localStorage.getItem('wheelSize');
+    return saved ? Number(saved) : 500;
+  });
   const wheelRef = useRef<WheelRef>(null);
 
   // Hidratar estado do localStorage na inicialização
@@ -33,6 +37,18 @@ export const App: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [lastDrawn, isSpinning]);
+
+  // Esconder resultado imediatamente quando a roleta começar a girar
+  useEffect(() => {
+    if (isSpinning) {
+      setShowResult(false);
+    }
+  }, [isSpinning]);
+
+  // Salvar tamanho da roleta no localStorage
+  useEffect(() => {
+    localStorage.setItem('wheelSize', wheelSize.toString());
+  }, [wheelSize]);
 
   const handleSpin = () => {
     if (availableNumbers.length === 0) {
@@ -167,9 +183,57 @@ export const App: React.FC = () => {
 
         {/* Roleta - Seção isolada */}
         <div className="flex flex-col items-center space-y-8">
+          {/* Controle de Tamanho da Roleta */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-secondary-200 w-full max-w-4xl">
+            <div className="flex flex-col space-y-4">
+              <label className="text-sm font-medium text-secondary-700 text-center">
+                Tamanho da Roleta
+              </label>
+              
+              {/* Slider e valor atual */}
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-secondary-500 min-w-[40px]">300px</span>
+                <input
+                  type="range"
+                  min="300"
+                  max="1000"
+                  step="50"
+                  value={wheelSize}
+                  onChange={(e) => setWheelSize(Number(e.target.value))}
+                  className="flex-1 h-2 bg-secondary-200 rounded-lg appearance-none cursor-pointer slider"
+                />
+                <span className="text-xs text-secondary-500 min-w-[40px]">1000px</span>
+              </div>
+              
+              {/* Valor atual destacado */}
+              <div className="text-center">
+                <span className="inline-block bg-primary-100 text-primary-800 px-4 py-2 rounded-lg font-medium">
+                  {wheelSize}px
+                </span>
+              </div>
+              
+              {/* Botões de tamanhos predefinidos */}
+              <div className="flex flex-wrap justify-center gap-2">
+                {[300, 400, 500, 600, 700, 800, 900, 1000].map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setWheelSize(size)}
+                    className={`px-4 py-2 text-sm rounded-lg transition-all duration-200 ${
+                      wheelSize === size
+                        ? 'bg-primary-500 text-white shadow-md scale-105'
+                        : 'bg-secondary-100 text-secondary-600 hover:bg-secondary-200 hover:scale-105'
+                    }`}
+                  >
+                    {size}px
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <Wheel
             ref={wheelRef}
-            size={500}
+            size={wheelSize}
             onSpinComplete={handleSpinComplete}
           />
           

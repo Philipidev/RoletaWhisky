@@ -124,16 +124,26 @@ export function calculateFinalRotation(
     throw new Error(`Número ${targetNumber} não encontrado nos setores`);
   }
   
-  // Ângulo necessário para alinhar o setor ao topo (0°)
-  // Como o ponteiro está no topo, precisamos rotacionar para que o centro do setor fique em 0°
-  const targetAngle = 360 - targetSector.centerAngle;
+  // Normalizar a rotação atual para calcular a posição relativa
+  const currentNormalizedRotation = normalizeAngle(-currentRotation);
+  
+  // Ângulo do setor alvo
+  const targetSectorAngle = targetSector.centerAngle;
+  
+  // Calcular a diferença angular necessária (quanto precisamos rotacionar)
+  let angleDifference = currentNormalizedRotation - targetSectorAngle;
+  
+  // Se a diferença for negativa, adicionar 360° para ir na direção positiva
+  if (angleDifference < 0) {
+    angleDifference += 360;
+  }
   
   // Número aleatório de voltas completas
   const spins = Math.floor(Math.random() * (maxSpins - minSpins + 1)) + minSpins;
   const fullRotations = spins * 360;
   
-  // Rotação final = rotação atual + voltas completas + alinhamento do setor
-  const finalRotation = currentRotation + fullRotations + targetAngle;
+  // Rotação final = rotação atual + voltas completas + diferença angular
+  const finalRotation = currentRotation + fullRotations + angleDifference;
   
   return finalRotation;
 }

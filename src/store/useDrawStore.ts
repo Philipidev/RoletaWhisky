@@ -113,23 +113,40 @@ export const useDrawStore = create<DrawStore>((set, get) => ({
       return null;
     }
     
-    let availableNumbers = [...state.pool];
-    
-    // Se não permite repetição, remover números já sorteados
+    // Se não permite repetição, verificar se ainda há números disponíveis
     if (!state.options.allowRepeats) {
       const drawnValues = state.drawn.map(d => d.value);
-      availableNumbers = availableNumbers.filter(n => !drawnValues.includes(n));
+      const availableNumbers = state.pool.filter(n => !drawnValues.includes(n));
+      
+      if (availableNumbers.length === 0) {
+        return null; // Pool esgotado
+      }
+      
+      // Usar RNG com seed se fornecido
+      const rng = new RNG(state.options.seed);
+      const drawnNumber = rng.choice(availableNumbers);
+      
+      // Armazenar como pendente
+      set({
+        pendingDraw: drawnNumber,
+        lastDrawn: drawnNumber,
+      });
+      
+      return drawnNumber;
     }
     
+    // Se permite repetição, usar todos os números do pool
+    const availableNumbers = [...state.pool];
+    
     if (availableNumbers.length === 0) {
-      return null; // Pool esgotado
+      return null; // Pool vazio
     }
     
     // Usar RNG com seed se fornecido
     const rng = new RNG(state.options.seed);
     const drawnNumber = rng.choice(availableNumbers);
     
-    // Armazenar como pendente, não adicionar ao histórico ainda
+    // Armazenar como pendente
     set({
       pendingDraw: drawnNumber,
       lastDrawn: drawnNumber,

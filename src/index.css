@@ -18,6 +18,46 @@ body {
   min-height: 100vh;
 }
 
+/* Estilos personalizados para o slider de tamanho da roleta */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f19340;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f19340;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-webkit-slider-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #e2e8f0;
+}
+
+.slider::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #e2e8f0;
+}
+
 #root {
   min-height: 100vh;
 }
